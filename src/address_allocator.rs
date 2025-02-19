@@ -29,7 +29,10 @@ pub struct AddressAllocator {
     // tree will represent a memory location and can have two states either
     // `NodeState::Free` or `NodeState::Allocated`.
     interval_tree: IntervalTree,
-    // Available memory space
+    // Available free memory space in the address space.
+    // NOTE that due to fragmentations, |available| may not give the actual
+    // available (contiguous) memory block that can be allocated in next
+    // allocate() call.
     available: usize,
 }
 
@@ -80,6 +83,9 @@ impl AddressAllocator {
     }
 
     /// Returns the available memory size in this allocator.
+    /// NOTE that due to fragmentations, it's not guaranteed that the next
+    /// allocate() call after querying the available memory can succeed with
+    /// allocating those available memories and it may still return OOM.
     pub fn available(&self) -> usize {
         self.available
     }
